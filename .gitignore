@@ -1,0 +1,7 @@
+# Ignore the virtual environment directory
+vix-env*
+
+# Ignore generated files and directories
+vix_index_prediction_model.egg-info
+build
+dist
