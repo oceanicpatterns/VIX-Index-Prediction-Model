@@ -2,7 +2,7 @@
 
 Lightweight Python + data-engineering project for exploring VIX prediction with a simple baseline model and Snowflake-backed data flow.
 
-Maintainer: **OceanicPatterns**  
+Maintainer: **OceanicPatterns**
 Repository: https://github.com/oceanicpatterns/VIX-Index-Prediction-Model
 
 ## Table of Contents
@@ -45,7 +45,7 @@ It is designed as an educational baseline with production-minded engineering pra
 
 ## Background: VIX in Plain English
 
-The **VIX** (CBOE Volatility Index) is often called the market's "fear gauge."  
+The **VIX** (CBOE Volatility Index) is often called the market's "fear gauge."
 It reflects expected near-term volatility derived from S&P 500 options pricing.
 
 In this project, the engineered feature is:
