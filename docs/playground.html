@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VIX Playground | OceanicPatterns</title>
+  <style>
+    :root {
+      --bg-top: #071326;
+      --bg-mid: #0e2948;
+      --bg-bottom: #123a57;
+      --panel: rgba(10, 26, 45, 0.82);
+      --panel-border: rgba(180, 215, 255, 0.24);
+      --text: #eaf3ff;
+      --muted: #a7bfdc;
+      --accent: #35d0ba;
+      --accent-2: #f2b950;
+      --danger: #ff7d7d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
+      background: radial-gradient(1200px 600px at 10% 5%, rgba(53, 208, 186, 0.16), transparent),
+                  radial-gradient(1000px 500px at 90% 10%, rgba(242, 185, 80, 0.16), transparent),
+                  linear-gradient(165deg, var(--bg-top) 0%, var(--bg-mid) 40%, var(--bg-bottom) 100%);
+      min-height: 100vh;
+      padding: 28px;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      margin-bottom: 22px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border: 1px solid var(--panel-border);
+      border-radius: 999px;
+      color: var(--accent);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(8, 21, 36, 0.5);
+    }
+
+    h1 {
+      margin: 10px 0 10px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+
+    .sub {
+      margin: 0;
+      max-width: 760px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 16px;
+      backdrop-filter: blur(6px);
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 17px;
+      letter-spacing: 0.01em;
+    }
+
+    .row {
+      margin-bottom: 12px;
+    }
+
+    .row label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .row input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .row .value {
+      font-size: 12px;
+      color: var(--accent-2);
+    }
+
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), #2ca1d4);
+      color: #052030;
+      width: 100%;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .kpi {
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 10px;
+      background: rgba(7, 19, 34, 0.48);
+    }
+
+    .kpi .label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .kpi .num {
+      margin-top: 4px;
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .chart-wrap {
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 10px;
+      background: rgba(8, 18, 32, 0.5);
+    }
+
+    canvas {
+      width: 100%;
+      height: 300px;
+      display: block;
+    }
+
+    .note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .warn {
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    @media (max-width: 960px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <div class="badge">OceanicPatterns Demo</div>
+      <h1>VIX Prediction Playground</h1>
+      <p class="sub">
+        Interactive mini-lab for the repository workflow: simulate VIX-like data, fit a simple linear model,
+        inspect MSE, and preview predicted close values from volatility index input.
+      </p>
+    </header>
+
+    <section class="grid">
+      <aside class="panel">
+        <h2>Scenario Controls</h2>
+
+        <div class="row">
+          <label for="rows">Sample size</label>
+          <input id="rows" type="range" min="120" max="1000" value="420" step="20">
+          <div class="value" id="rows-value">420 rows</div>
+        </div>
+
+        <div class="row">
+          <label for="noise">Noise level</label>
+          <input id="noise" type="range" min="1" max="20" value="7" step="1">
+          <div class="value" id="noise-value">7.0</div>
+        </div>
+
+        <div class="row">
+          <label for="predictor">Volatility index (predict)</label>
+          <input id="predictor" type="range" min="0.05" max="1.2" value="0.40" step="0.01">
+          <div class="value" id="predictor-value">0.40</div>
+        </div>
+
+        <button id="rerun" class="btn" type="button">Re-run Simulation</button>
+
+        <p class="note">
+          This is a static browser simulation for exploration only.
+          It mirrors the repo's modeling idea, but does <span class="warn">not</span> replace real Snowflake-backed training.
+        </p>
+      </aside>
+
+      <section class="panel">
+        <h2>Model Snapshot</h2>
+        <div class="kpis">
+          <article class="kpi">
+            <div class="label">Train Rows</div>
+            <div class="num" id="train-rows">-</div>
+          </article>
+          <article class="kpi">
+            <div class="label">Test Rows</div>
+            <div class="num" id="test-rows">-</div>
+          </article>
+          <article class="kpi">
+            <div class="label">MSE</div>
+            <div class="num" id="mse">-</div>
+          </article>
+          <article class="kpi">
+            <div class="label">Predicted Close</div>
+            <div class="num" id="pred">-</div>
+          </article>
+        </div>
+
+        <div class="chart-wrap">
+          <canvas id="chart" width="900" height="300" aria-label="Actual vs Predicted close prices"></canvas>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    function rng(seed) {
+      let s = seed >>> 0;
+      return function next() {
+        s = (1664525 * s + 1013904223) % 4294967296;
+        return s / 4294967296;
+      };
+    }
+
+    function generateData(count, noise, seed) {
+      const rand = rng(seed);
+      const x = [];
+      const y = [];
+      for (let i = 0; i < count; i += 1) {
+        const xi = 0.05 + rand() * 1.15;
+        const eps = (rand() - 0.5) * 2 * noise;
+        const yi = 12 + 92 * xi + eps;
+        x.push(xi);
+        y.push(yi);
+      }
+      return { x, y };
+    }
+
+    function linearFit(x, y) {
+      const n = x.length;
+      let sx = 0;
+      let sy = 0;
+      let sxy = 0;
+      let sxx = 0;
+      for (let i = 0; i < n; i += 1) {
+        sx += x[i];
+        sy += y[i];
+        sxy += x[i] * y[i];
+        sxx += x[i] * x[i];
+      }
+      const slope = (n * sxy - sx * sy) / (n * sxx - sx * sx);
+      const intercept = (sy - slope * sx) / n;
+      return { slope, intercept };
+    }
+
+    function mse(yTrue, yPred) {
+      let err = 0;
+      for (let i = 0; i < yTrue.length; i += 1) {
+        const d = yTrue[i] - yPred[i];
+        err += d * d;
+      }
+      return err / yTrue.length;
+    }
+
+    function split(x, y, ratio) {
+      const nTrain = Math.max(1, Math.floor(x.length * ratio));
+      return {
+        xTrain: x.slice(0, nTrain),
+        yTrain: y.slice(0, nTrain),
+        xTest: x.slice(nTrain),
+        yTest: y.slice(nTrain)
+      };
+    }
+
+    function drawChart(canvas, actual, predicted) {
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const pad = { l: 44, r: 16, t: 20, b: 30 };
+      const minY = Math.min(...actual, ...predicted);
+      const maxY = Math.max(...actual, ...predicted);
+      const stepX = (w - pad.l - pad.r) / Math.max(1, actual.length - 1);
+
+      function scaleY(v) {
+        const t = (v - minY) / (maxY - minY || 1);
+        return h - pad.b - t * (h - pad.t - pad.b);
+      }
+
+      ctx.strokeStyle = "rgba(167,191,220,0.45)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad.l, pad.t);
+      ctx.lineTo(pad.l, h - pad.b);
+      ctx.lineTo(w - pad.r, h - pad.b);
+      ctx.stroke();
+
+      function drawSeries(series, color) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 0; i < series.length; i += 1) {
+          const px = pad.l + i * stepX;
+          const py = scaleY(series[i]);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      }
+
+      drawSeries(actual, "#35d0ba");
+      drawSeries(predicted, "#f2b950");
+
+      ctx.fillStyle = "#a7bfdc";
+      ctx.font = "12px Space Grotesk, sans-serif";
+      ctx.fillText("Actual", w - 130, 20);
+      ctx.fillStyle = "#35d0ba";
+      ctx.fillRect(w - 170, 12, 28, 3);
+      ctx.fillStyle = "#a7bfdc";
+      ctx.fillText("Predicted", w - 65, 20);
+      ctx.fillStyle = "#f2b950";
+      ctx.fillRect(w - 100, 12, 28, 3);
+    }
+
+    const rows = document.getElementById("rows");
+    const noise = document.getElementById("noise");
+    const predictor = document.getElementById("predictor");
+    const rerun = document.getElementById("rerun");
+
+    const rowsValue = document.getElementById("rows-value");
+    const noiseValue = document.getElementById("noise-value");
+    const predictorValue = document.getElementById("predictor-value");
+
+    const trainRows = document.getElementById("train-rows");
+    const testRows = document.getElementById("test-rows");
+    const mseOut = document.getElementById("mse");
+    const predOut = document.getElementById("pred");
+    const chart = document.getElementById("chart");
+
+    function syncLabels() {
+      rowsValue.textContent = rows.value + " rows";
+      noiseValue.textContent = Number(noise.value).toFixed(1);
+      predictorValue.textContent = Number(predictor.value).toFixed(2);
+    }
+
+    function run() {
+      syncLabels();
+      const count = Number(rows.value);
+      const noiseLevel = Number(noise.value);
+      const predX = Number(predictor.value);
+
+      const data = generateData(count, noiseLevel, 42 + count + noiseLevel * 7);
+      const parts = split(data.x, data.y, 0.8);
+      const model = linearFit(parts.xTrain, parts.yTrain);
+      const yPred = parts.xTest.map(v => model.intercept + model.slope * v);
+      const modelMse = mse(parts.yTest, yPred);
+      const onePred = model.intercept + model.slope * predX;
+
+      trainRows.textContent = String(parts.xTrain.length);
+      testRows.textContent = String(parts.xTest.length);
+      mseOut.textContent = modelMse.toFixed(2);
+      predOut.textContent = onePred.toFixed(2);
+
+      drawChart(chart, parts.yTest.slice(0, 140), yPred.slice(0, 140));
+    }
+
+    [rows, noise, predictor].forEach(el => el.addEventListener("input", run));
+    rerun.addEventListener("click", run);
+    run();
+  </script>
+</body>
+</html>

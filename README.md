@@ -14,6 +14,33 @@ Lightweight VIX modeling project that fetches historical CBOE VIX data, engineer
 3. Writes/reads a Snowflake table for model-ready data.
 4. Trains and evaluates a baseline model using Mean Squared Error (MSE).
 
+## Interactive Demo Playground
+
+Explore the static browser demo:
+
+- Local file: `docs/playground.html`
+- Direct GitHub URL: `https://github.com/oceanicpatterns/VIX-Index-Prediction-Model/blob/main/docs/playground.html`
+- Live Pages URL (after enabling Pages): `https://oceanicpatterns.github.io/VIX-Index-Prediction-Model/`
+
+Run locally:
+
+```bash
+open docs/playground.html
+```
+
+Enable GitHub Pages for live visitors:
+
+1. Repository Settings -> Pages
+2. Source: GitHub Actions
+3. Run workflow `Deploy Demo (GitHub Pages)` once (or push to `main`)
+
+What visitors can do in the playground:
+
+1. Simulate VIX-like volatility/close-price data.
+2. Tune sample size and noise.
+3. Re-run a baseline linear model instantly.
+4. Inspect train/test split, MSE, prediction output, and chart behavior.
+
 ## Security and Configuration
 
 Credentials are **not** stored in source control.
@@ -97,6 +124,8 @@ GitHub Actions runs on push/PR:
 
 ```text
 VIX-Index-Prediction-Model/
+  docs/
+    playground.html
   config/
     snowflake_config.example.ini
   ml_vix_model.py
