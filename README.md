@@ -1,74 +1,113 @@
 # VIX-Index-Prediction-Model
 
-Demonstrates a workflow that involves fetching, processing, storing, analyzing, and reporting on financial data using machine learning techniques within a Snowflake database environment
+Lightweight VIX modeling project that fetches historical CBOE VIX data, engineers a simple volatility feature, stores data in Snowflake, and trains a baseline linear regression model.
 
-## Overview
+## Maintainer
 
-The VIX Index, also known as the CBOE Volatility Index, is a real-time market index that reflects the market's expectations for volatility over the next 30 days. It measures the relative strength of market sentiment and fear among participants by analyzing the prices of S&P 500 index options with near-term expiration dates. Essentially, the VIX provides a quantifiable measure of market risk and helps investors gauge the level of risk or stress in the market when making investment decisions.
+- Maintainer: **OceanicPatterns**
+- Repository: `https://github.com/oceanicpatterns/VIX-Index-Prediction-Model`
 
-Accurate prediction of the VIX can be valuable for risk management. This script aims to provide a simple way to predict the VIX 'CLOSE PRICE' using historical data.
+## What This Project Does
 
-## Data Source
+1. Downloads VIX historical data from CBOE.
+2. Computes `VOLATILITY_INDEX = (HIGH - LOW) / CLOSE`.
+3. Writes/reads a Snowflake table for model-ready data.
+4. Trains and evaluates a baseline model using Mean Squared Error (MSE).
 
-The data used in this project is sourced from the CBOE VIX Historical Data website, which provides historical price data for the VIX Index, VIX futures, and other volatility indices. Users can access daily closing values of the Cboe Volatility Index® (VIX Index) and other related indices.
+## Security and Configuration
 
-## Features
+Credentials are **not** stored in source control.
 
-- Fetches historical VIX Index data from a specified URL.
-- Calculates the 'VOLATILITY INDEX' from the high, low, and close prices.
-- Interacts with Snowflake to create a temporary table, insert data, and fetch it for model training.
-- Trains a Linear Regression model using the 'VOLATILITY INDEX' as a feature.
-- Evaluates the model's performance using the Mean Squared Error (MSE) metric.
-- Generates a brief report detailing the model's prediction accuracy.
+Use either:
 
-## Requirements
+1. Environment variables (recommended)
+2. Local config file `config/snowflake_config.ini` (ignored by git)
 
-- Python 3.7 or later (strongly recommended, as 3.6 is nearing end-of-life)
-- Some familiarity with Snowflake concepts (understanding of tables, columns, and data manipulation)
-
-## Installation and Setup
-
-### 1. Configure Snowflake Account:
-
-Go to snowflake > config > snowflake_config.ini and fill in the required fields for your Snowflake account.
-To use Snowflake, you can sign up for a free trial here.
-
-To use snowflake, you need to create a free trial here: https://signup.snowflake.com
-
-### 2. Create a Virtual Environment:
-Navigate to the project directory and create a virtual environment named 'vix-env' using the following commands:
+### Environment Variables
 
 ```bash
-# For Unix/MacOS
-python3 -m venv vix-env
-
-# For Windows
-python -m venv vix-env
+export SNOWFLAKE_USER="..."
+export SNOWFLAKE_PASSWORD="..."
+export SNOWFLAKE_ACCOUNT="..."
+export SNOWFLAKE_WAREHOUSE="..."
+export SNOWFLAKE_DATABASE="..."
+export SNOWFLAKE_SCHEMA="..."
 ```
 
-Activate the virtual environment before installing dependencies:
+Optional:
+
 ```bash
-# For Unix/MacOS
-source vix-env/bin/activate
-
-# For Windows
-.\vix-env\Scripts\activate
+export SNOWFLAKE_TEMP_TABLE="MASTER_DB.RAW.TEMP_TABLE"
 ```
 
-Once the virtual environment is activated, install the project dependencies using setup.py:
+### Config File Option (Local Only)
+
+Copy the template:
+
 ```bash
-pip install .
+cp config/snowflake_config.example.ini config/snowflake_config.ini
 ```
 
-This command will read the dependencies specified in setup.py and install them in your virtual environment.
+Then fill in your local credentials.
 
-You can now run the VIX Index Prediction Model by executing the main script:
+## Installation
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+## Run
 
 ```bash
 python ml_vix_model.py
 ```
 
-## Disclaimer
-This code is provided for educational and learning purposes only. It is not intended to be a product for sale, distribution, or to make a profit. The implementation serves as a basic example of data science and machine learning concepts and should not be used as a financial advisory tool.
+Or via console script:
 
-The CBOE Volatility Index data is compiled for the convenience of site visitors and is provided without responsibility for accuracy. Users accept this data on the condition that transmission or omissions shall not be the basis for any claim, demand, or cause for action. For more information on the data sources and terms of use, please visit [CBOE VIX Historical Data](https://www.cboe.com/tradable_products/vix/vix_historical_data/).
+```bash
+pip install .
+run_vix_model
+```
+
+## Tests
+
+Unit tests (default):
+
+```bash
+pytest -q
+```
+
+Snowflake integration test is disabled by default. Enable it explicitly:
+
+```bash
+RUN_SNOWFLAKE_INTEGRATION_TESTS=1 pytest -q
+```
+
+## CI
+
+GitHub Actions runs on push/PR:
+
+1. Secret scan (`gitleaks`)
+2. Python syntax check
+3. Unit tests
+
+## Project Layout
+
+```text
+VIX-Index-Prediction-Model/
+  config/
+    snowflake_config.example.ini
+  ml_vix_model.py
+  snowflake_connection.py
+  test_ml_vix_model.py
+  test_snowflake_connection.py
+  requirements.txt
+  setup.py
+```
+
+## Notes
+
+- This is an educational baseline model, not financial advice.
+- The model is intentionally simple and should be extended before production use.

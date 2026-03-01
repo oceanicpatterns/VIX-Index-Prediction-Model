@@ -1,7 +1,27 @@
-# Ignore the virtual environment directory
+# Virtual environments
 vix-env*
+.venv/
+venv/
+ENV/
 
-# Ignore generated files and directories
-vix_index_prediction_model.egg-info
-build
-dist
+# Python cache and test outputs
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build artifacts
+vix_index_prediction_model.egg-info/
+build/
+dist/
+*.egg-info/
+
+# Local config and secrets
+config/snowflake_config.ini
+.env
+.env.*
+
+# OS/editor artifacts
+.DS_Store
+Thumbs.db

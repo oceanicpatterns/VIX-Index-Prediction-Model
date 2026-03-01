@@ -1,27 +1,20 @@
+import os
 
-import snowflake.connector
+import pytest
+
 from snowflake_connection import get_snowflake_connection
 
-def test_snowflake_connection():
-    
-    try:
-        conn = get_snowflake_connection()
-        cur = conn.cursor()
-        print("Successfully connected to Snowflake.")
-        
-        try:
-            cur.execute("SELECT CURRENT_VERSION()")
-            one_row = cur.fetchone()
-            print(f"Snowflake version: {one_row[0]}")
-        except snowflake.connector.errors.ProgrammingError as e:
-            print(f"An error occurred during query execution: {e}")
-        finally:
-            cur.close()
 
-    except Exception as e:
-        print(f"Failed to connect to Snowflake: {e}")
+@pytest.mark.skipif(
+    os.getenv("RUN_SNOWFLAKE_INTEGRATION_TESTS") != "1",
+    reason="Integration test disabled. Set RUN_SNOWFLAKE_INTEGRATION_TESTS=1 to enable.",
+)
+def test_snowflake_connection():
+    conn = get_snowflake_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT CURRENT_VERSION()")
+            version = cur.fetchone()[0]
+        assert version
     finally:
         conn.close()
-
-if __name__ == "__main__":
-    test_snowflake_connection()

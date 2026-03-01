@@ -1,13 +1,19 @@
 from setuptools import setup, find_packages
 
 with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
+    requirements = [
+        line.strip()
+        for line in f
+        if line.strip() and not line.startswith('#')
+    ]
+
+runtime_requirements = [req for req in requirements if not req.startswith('pytest')]
 
 setup(
     name='vix-index-prediction-model',
-    version='1.0',
+    version='1.0.1',
     packages=find_packages(),
-    install_requires=requirements,
+    install_requires=runtime_requirements,
     entry_points={
         'console_scripts': [
             'run_vix_model=ml_vix_model:run_training_and_generate_results'
@@ -15,6 +21,5 @@ setup(
     },
     author='OceanicPatterns',
     description='A model for predicting VIX Index prices based on volatility index',
-    url='https://github.com/oceanicpatterns/vix-index-prediction-model',
+    url='https://github.com/oceanicpatterns/VIX-Index-Prediction-Model',
 )
-
