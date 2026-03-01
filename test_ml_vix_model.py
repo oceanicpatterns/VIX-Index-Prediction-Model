@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 import pandas as pd
 import pytest
 
-from ml_vix_model import DataProcessor, _validate_table_name
+from ml_vix_model import DataProcessor, _fit_and_evaluate, _validate_table_name
 
 
 def test_fetch_data_from_url_parses_required_columns():
@@ -42,3 +42,22 @@ def test_validate_table_name_accepts_fully_qualified_name():
 def test_validate_table_name_rejects_invalid_name():
     with pytest.raises(ValueError):
         _validate_table_name("raw.temp_table")
+
+
+def test_fit_and_evaluate_returns_expected_shape():
+    features = pd.DataFrame({"VOLATILITY_INDEX": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]})
+    targets = pd.Series([20, 25, 30, 35, 40, 45], name="CLOSE_PRICE")
+    result = _fit_and_evaluate(features=features, targets=targets, predict_for=0.4)
+    assert result.train_rows > 0
+    assert result.test_rows > 0
+    assert result.mse >= 0
+    assert isinstance(result.predicted_close_for_input, float)
+
+
+def test_fit_and_evaluate_raises_for_empty_data():
+    with pytest.raises(ValueError):
+        _fit_and_evaluate(
+            features=pd.DataFrame({"VOLATILITY_INDEX": []}),
+            targets=pd.Series([], dtype=float, name="CLOSE_PRICE"),
+            predict_for=0.4,
+        )

@@ -1,15 +1,39 @@
+from __future__ import annotations
+
 import configparser
 import os
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict, Mapping
 
 import snowflake.connector
+from snowflake.connector.connection import SnowflakeConnection
 
 
 REQUIRED_FIELDS = ("user", "password", "account", "warehouse", "database", "schema")
 
 
-def _load_from_config(config_path: Path) -> Dict[str, str]:
+@dataclass(frozen=True)
+class SnowflakeSettings:
+    user: str
+    password: str
+    account: str
+    warehouse: str
+    database: str
+    schema: str
+
+    def to_connect_kwargs(self) -> Dict[str, str]:
+        return {
+            "user": self.user,
+            "password": self.password,
+            "account": self.account,
+            "warehouse": self.warehouse,
+            "database": self.database,
+            "schema": self.schema,
+        }
+
+
+def _load_from_config(config_path: Path) -> Mapping[str, str]:
     parser = configparser.ConfigParser()
     if not config_path.exists():
         return {}
@@ -19,7 +43,7 @@ def _load_from_config(config_path: Path) -> Dict[str, str]:
     return {key: parser["snowflake"].get(key, "") for key in REQUIRED_FIELDS}
 
 
-def _load_from_env() -> Dict[str, str]:
+def _load_from_env() -> Mapping[str, str]:
     return {
         "user": os.getenv("SNOWFLAKE_USER", ""),
         "password": os.getenv("SNOWFLAKE_PASSWORD", ""),
@@ -30,7 +54,7 @@ def _load_from_env() -> Dict[str, str]:
     }
 
 
-def get_connection_params(config_path: str | None = None) -> Dict[str, str]:
+def get_connection_params(config_path: str | None = None) -> SnowflakeSettings:
     config_file = Path(
         config_path or os.getenv("SNOWFLAKE_CONFIG_PATH", "config/snowflake_config.ini")
     )
@@ -49,16 +73,11 @@ def get_connection_params(config_path: str | None = None) -> Dict[str, str]:
             f"values in {config_file}."
         )
 
-    return merged
+    return SnowflakeSettings(**merged)
 
 
-def get_snowflake_connection(config_path: str | None = None):
+def get_snowflake_connection(
+    config_path: str | None = None, **connector_kwargs: Any
+) -> SnowflakeConnection:
     params = get_connection_params(config_path=config_path)
-    return snowflake.connector.connect(
-        user=params["user"],
-        password=params["password"],
-        account=params["account"],
-        warehouse=params["warehouse"],
-        database=params["database"],
-        schema=params["schema"],
-    )
+    return snowflake.connector.connect(**params.to_connect_kwargs(), **connector_kwargs)
