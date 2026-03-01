@@ -11,12 +11,13 @@ runtime_requirements = [req for req in requirements if not req.startswith('pytes
 
 setup(
     name='vix-index-prediction-model',
-    version='1.0.1',
-    packages=find_packages(),
+    version='1.1.0',
+    package_dir={"": "src"},
+    packages=find_packages(where="src"),
     install_requires=runtime_requirements,
     entry_points={
         'console_scripts': [
-            'run_vix_model=ml_vix_model:run_training_and_generate_results'
+            'run_vix_model=vix_model.app:run_training_and_generate_results'
         ]
     },
     author='OceanicPatterns',

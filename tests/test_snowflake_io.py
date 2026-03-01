@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-from snowflake_connection import get_connection_params, get_snowflake_connection
+from vix_model.snowflake_io import get_connection_params, get_snowflake_connection
 
 
 def test_get_connection_params_prefers_env(monkeypatch):
@@ -41,7 +41,7 @@ def test_get_snowflake_connection_passes_connector_kwargs(monkeypatch):
     monkeypatch.setenv("SNOWFLAKE_DATABASE", "d")
     monkeypatch.setenv("SNOWFLAKE_SCHEMA", "s")
 
-    with patch("snowflake_connection.snowflake.connector.connect") as connect_mock:
+    with patch("vix_model.snowflake_io.snowflake.connector.connect") as connect_mock:
         get_snowflake_connection(login_timeout=10)
     connect_mock.assert_called_once()
     assert connect_mock.call_args.kwargs["login_timeout"] == 10

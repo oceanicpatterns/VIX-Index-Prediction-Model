@@ -44,7 +44,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Python syntax check
-        run: python -m py_compile *.py
+        run: python -m py_compile ml_vix_model.py snowflake_connection.py src/vix_model/*.py
 
       - name: Run unit tests
         run: pytest -q

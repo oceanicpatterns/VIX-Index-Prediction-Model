@@ -91,7 +91,7 @@ pip install -r requirements.txt
 python ml_vix_model.py
 ```
 
-Or via console script:
+Or via installed console script:
 
 ```bash
 pip install .
@@ -124,14 +124,21 @@ GitHub Actions runs on push/PR:
 
 ```text
 VIX-Index-Prediction-Model/
+  src/vix_model/
+    app.py
+    modeling.py
+    snowflake_io.py
+    __init__.py
+  tests/
+    test_modeling.py
+    test_snowflake_io.py
   docs/
     playground.html
   config/
     snowflake_config.example.ini
-  ml_vix_model.py
-  snowflake_connection.py
-  test_ml_vix_model.py
-  test_snowflake_connection.py
+  ml_vix_model.py              # backward-compatible shim
+  snowflake_connection.py      # backward-compatible shim
+  pytest.ini
   requirements.txt
   setup.py
 ```
