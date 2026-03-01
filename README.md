@@ -21,6 +21,7 @@ Explore the static browser demo:
 - Local file: `docs/playground.html`
 - Direct GitHub URL: `https://github.com/oceanicpatterns/VIX-Index-Prediction-Model/blob/main/docs/playground.html`
 - Live Pages URL (after enabling Pages): `https://oceanicpatterns.github.io/VIX-Index-Prediction-Model/`
+- Direct live demo URL: `https://oceanicpatterns.github.io/VIX-Index-Prediction-Model/playground.html`
 
 Run locally:
 
